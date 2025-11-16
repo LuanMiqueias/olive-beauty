@@ -94,7 +94,7 @@ export function CheckoutPage() {
               Seu carrinho está vazio. Adicione produtos antes de finalizar a compra.
             </p>
             <div className="mt-4 text-center">
-              <Button onClick={() => navigate({ to: '/products' })}>
+              <Button onClick={() => navigate({ to: '/products', search: { categoryId: undefined, search: undefined, brand: undefined, minPrice: undefined, maxPrice: undefined, sortBy: 'createdAt' } })}>
                 Continuar Comprando
               </Button>
             </div>

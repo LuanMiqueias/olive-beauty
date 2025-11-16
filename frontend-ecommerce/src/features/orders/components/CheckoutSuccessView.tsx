@@ -19,7 +19,7 @@ export function CheckoutSuccessView({ order, onClose }: CheckoutSuccessViewProps
 
   const handleContinueShopping = () => {
     onClose()
-    navigate({ to: '/products' })
+    navigate({ to: '/products', search: { categoryId: undefined, search: undefined, brand: undefined, minPrice: undefined, maxPrice: undefined, sortBy: 'createdAt' } })
   }
 
   const handleClose = () => {
