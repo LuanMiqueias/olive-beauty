@@ -1,0 +1,24 @@
+{
+  "name": "olive-beauty",
+  "version": "1.0.0",
+  "description": "Olive Beauty E-commerce - Full Stack Application",
+  "private": true,
+  "scripts": {
+    "dev": "npm run docker:up && concurrently \"npm run dev:backend\" \"npm run dev:ecommerce\" \"npm run dev:admin\"",
+    "docker:up": "cd backend && docker-compose up -d",
+    "docker:down": "cd backend && docker-compose down",
+    "docker:logs": "cd backend && docker-compose logs -f",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:ecommerce": "cd frontend-ecommerce && npm run dev",
+    "dev:admin": "cd frontend-admin && npm run dev",
+    "install:all": "npm install && cd backend && npm install && cd ../frontend-ecommerce && npm install && cd ../frontend-admin && npm install",
+    "build": "npm run build:backend && npm run build:ecommerce && npm run build:admin",
+    "build:backend": "cd backend && npm run build",
+    "build:ecommerce": "cd frontend-ecommerce && npm run build",
+    "build:admin": "cd frontend-admin && npm run build"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
+
