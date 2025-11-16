@@ -110,19 +110,6 @@ export function CheckoutProcessModal({
     return order
   }
 
-  // Step 3: Prepare shipping (clear cart)
-  const prepareShipping = async (): Promise<boolean> => {
-    try {
-      await getCart() // Refresh cart (should be empty now)
-      return true
-    } catch (err) {
-      // Don't fail the whole process if cart refresh fails
-      // Order was already created successfully
-      console.warn('Failed to refresh cart:', err)
-      return true
-    }
-  }
-
   const processSteps = useCallback(async () => {
     setIsProcessing(true)
     setError(null)
@@ -161,7 +148,6 @@ export function CheckoutProcessModal({
       stepInProgress = 3
       updateStepStatus(3, 'processing')
       setCurrentStep(3)
-      await prepareShipping()
       await delay(800) // Minimum duration
       updateStepStatus(3, 'completed')
       await delay(1000) // Show completed checkmark before next step
