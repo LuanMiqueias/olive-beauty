@@ -18,9 +18,28 @@ export class ProductRepository {
     basePrice: number;
     brand?: string;
     categoryId: string;
+    variants?: {
+      attributes: string;
+      price: number;
+      stock: number;
+    }[];
+    images?: {
+      url: string;
+      isCover: boolean;
+    }[];
   }): Promise<Product> {
     return prisma.product.create({
-      data,
+      data: {
+        name: data.name,
+        description: data.description,
+        basePrice: data.basePrice,
+        brand: data.brand,
+        categoryId: data.categoryId,
+      },
+      include: {
+        variants: true,
+        images: true,
+      },
     });
   }
 

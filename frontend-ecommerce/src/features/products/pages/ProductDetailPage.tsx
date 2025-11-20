@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link, useNavigate } from '@tanstack/react-router'
-import { Product, ProductVariant } from '@/shared/types'
+import { Product, ProductVariant, ProductImage } from '@/shared/types'
 import { productsApi } from '@/api/endpoints/products'
 import { useCartStore } from '@/shared/stores'
 import { useFavoritesStore } from '@/shared/stores'
@@ -27,6 +27,7 @@ export function ProductDetailPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isAddingToCart, setIsAddingToCart] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [displayedImages, setDisplayedImages] = useState<ProductImage[]>([]) // Images to display based on selected variant
 
   // Função para criar dados mockados como fallback
   const createMockProduct = (id: string): Product => {
@@ -211,6 +212,33 @@ export function ProductDetailPage() {
     setQuantity(1) // Reset quantity when variant changes
   }
 
+  // Function to get images for a specific variant or general product images
+  const getImagesForVariant = (variant: ProductVariant | null, allImages: ProductImage[]): ProductImage[] => {
+    if (!variant) {
+      // No variant selected: show only general product images (without productVariantId)
+      return allImages.filter(img => !img.productVariantId)
+    }
+
+    // Get images specific to this variant
+    const variantImages = allImages.filter(img => img.productVariantId === variant.id)
+
+    // If variant has images, use them; otherwise fallback to general product images
+    if (variantImages.length > 0) {
+      return variantImages
+    }
+
+    // Fallback: use general product images
+    return allImages.filter(img => !img.productVariantId)
+  }
+
+  // Update displayed images when product or selected variant changes
+  useEffect(() => {
+    if (product && product.images) {
+      const images = getImagesForVariant(selectedVariant, product.images)
+      setDisplayedImages(images)
+    }
+  }, [product, selectedVariant])
+
   // Loading state
   if (isLoading) {
     return (
@@ -246,7 +274,6 @@ export function ProductDetailPage() {
     )
   }
 
-  const images = product.images || []
   const currentPrice = selectedVariant?.price || product.basePrice
   const currentStock = selectedVariant?.stock ?? (product.variants?.[0]?.stock ?? 0)
   const hasStock = currentStock > 0
@@ -260,7 +287,7 @@ export function ProductDetailPage() {
         {/* Coluna Esquerda - Galeria de Imagens (60% largura desktop) */}
         <div className="sticky top-4 self-start">
           <ProductImageGallery
-            images={images}
+            images={displayedImages} // Use filtered images based on selected variant
             productName={product.name}
             hasFreeShipping={freeShipping}
           />

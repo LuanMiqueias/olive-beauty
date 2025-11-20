@@ -69,6 +69,10 @@ export function ProductFormModal({
   const [removeVariantIndex, setRemoveVariantIndex] = useState<number | null>(null)
 
   useEffect(() => {
+    console.log('variants', variants)
+  }, [variants]);
+
+  useEffect(() => {
     if (product) {
       setFormData({
         name: product.name || '',
@@ -88,6 +92,10 @@ export function ProductFormModal({
           attributes: typeof v.attributes === 'string' ? JSON.parse(v.attributes) : v.attributes,
           price: v.price,
           stock: v.stock,
+          images: v.images?.filter(img => img.productVariantId === v.id).map(img => ({
+            url: img.url,
+            isCover: img.isCover
+          })) || undefined, // Include variant images
         })) || []
       )
     } else {
@@ -134,6 +142,13 @@ export function ProductFormModal({
     try {
       let submitData: CreateProductDTO | UpdateProductDTO
 
+      // Sort images: cover first, then others
+      const sortedImages = [...images].sort((a, b) => {
+        if (a.isCover) return -1
+        if (b.isCover) return 1
+        return 0
+      })
+
       if (product) {
         // Update - only send changed fields
         submitData = {
@@ -142,6 +157,8 @@ export function ProductFormModal({
           basePrice: parseFloat(formData.basePrice),
           brand: formData.brand.trim() || undefined,
           categoryId: formData.categoryId,
+          variants: variants.length > 0 ? variants : undefined,
+          images: sortedImages.length > 0 ? sortedImages.map((img) => img.url) : undefined,
         }
       } else {
         // Create - include variants and images
@@ -152,7 +169,7 @@ export function ProductFormModal({
           brand: formData.brand.trim() || undefined,
           categoryId: formData.categoryId,
           variants: variants.length > 0 ? variants : undefined,
-          images: images.length > 0 ? images.map((img) => img.url) : undefined,
+          images: sortedImages.length > 0 ? sortedImages.map((img) => img.url) : undefined,
         }
       }
 
@@ -375,6 +392,7 @@ export function ProductFormModal({
                           <TableHead>Atributos</TableHead>
                           <TableHead>Preço</TableHead>
                           <TableHead>Estoque</TableHead>
+                          <TableHead>Imagens</TableHead>
                           <TableHead className="text-right">Ações</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -390,6 +408,13 @@ export function ProductFormModal({
                             </TableCell>
                             <TableCell>{formatCurrency(variant.price)}</TableCell>
                             <TableCell>{variant.stock}</TableCell>
+                            <TableCell>
+                              <span className="text-sm text-muted-foreground">
+                                {variant.images && variant.images.length > 0 
+                                  ? `${variant.images.length} ${variant.images.length === 1 ? 'imagem' : 'imagens'}`
+                                  : 'Sem imagens'}
+                              </span>
+                            </TableCell>
                             <TableCell className="text-right">
                               <div className="flex justify-end gap-2">
                                 <Button

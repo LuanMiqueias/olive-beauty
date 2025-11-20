@@ -40,6 +40,7 @@ export interface ProductVariant {
   attributes: string // JSON string: {"color": "red", "size": "50ml"}
   price: number
   stock: number
+  images?: ProductImage[] // Images specific to this variant
   createdAt: string
   updatedAt: string
 }
@@ -48,6 +49,7 @@ export interface ProductVariant {
 export interface ProductImage {
   id: string
   productId: string
+  productVariantId?: string | null // Optional: associates image with specific variant
   url: string
   isCover: boolean
   createdAt: string

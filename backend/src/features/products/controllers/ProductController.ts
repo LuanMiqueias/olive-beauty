@@ -22,7 +22,11 @@ const createProductUseCase = new CreateProductUseCase(
 );
 const listProductsUseCase = new ListProductsUseCase(productRepository);
 const getProductByIdUseCase = new GetProductByIdUseCase(productRepository);
-const updateProductUseCase = new UpdateProductUseCase(productRepository);
+const updateProductUseCase = new UpdateProductUseCase(
+  productRepository,
+  productVariantRepository,
+  productImageRepository
+);
 const deleteProductUseCase = new DeleteProductUseCase(productRepository);
 
 export class ProductController {

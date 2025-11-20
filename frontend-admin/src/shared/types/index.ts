@@ -40,6 +40,7 @@ export interface ProductVariant {
   attributes: string // JSON string: {"color": "red", "size": "50ml"}
   price: number
   stock: number
+  images?: ProductImage[] // Images specific to this variant
   createdAt: string
   updatedAt: string
 }
@@ -48,6 +49,7 @@ export interface ProductVariant {
 export interface ProductImage {
   id: string
   productId: string
+  productVariantId?: string | null // Optional: associates image with specific variant
   url: string
   isCover: boolean
   createdAt: string
@@ -161,8 +163,9 @@ export interface CreateProductDTO {
     attributes: Record<string, string>
     price: number
     stock: number
+    images?: Array<{ url: string; isCover?: boolean }> // Images for this variant
   }>
-  images?: string[]
+  images?: string[] // General product images (not associated with any variant)
 }
 
 // Update Product DTO
@@ -172,6 +175,13 @@ export interface UpdateProductDTO {
   basePrice?: number
   brand?: string
   categoryId?: string
+  variants?: Array<{
+    attributes: Record<string, string>
+    price: number
+    stock: number
+    images?: Array<{ url: string; isCover?: boolean }> // Images for this variant
+  }>
+  images?: string[] // General product images (not associated with any variant)
 }
 
 // Update Order Status DTO

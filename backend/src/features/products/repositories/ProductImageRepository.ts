@@ -7,6 +7,7 @@ export class ProductImageRepository {
     productId: string;
     url: string;
     isCover?: boolean;
+    productVariantId?: string; // NEW: Optional variant association
   }): Promise<ProductImage> {
     return prisma.productImage.create({
       data,
@@ -37,6 +38,41 @@ export class ProductImageRepository {
   async delete(id: string): Promise<void> {
     await prisma.productImage.delete({
       where: { id },
+    });
+  }
+
+  async deleteByProductId(productId: string): Promise<void> {
+    await prisma.productImage.deleteMany({
+      where: { productId },
+    });
+  }
+
+  // NEW: Find images by variant ID
+  async findByVariantId(variantId: string): Promise<ProductImage[]> {
+    return prisma.productImage.findMany({
+      where: { productVariantId: variantId },
+      orderBy: [{ isCover: 'desc' }, { createdAt: 'asc' }],
+    });
+  }
+
+  // NEW: Find images by product and optionally filter by variant
+  async findByProductIdAndVariantId(
+    productId: string,
+    variantId: string | null
+  ): Promise<ProductImage[]> {
+    return prisma.productImage.findMany({
+      where: {
+        productId,
+        productVariantId: variantId,
+      },
+      orderBy: [{ isCover: 'desc' }, { createdAt: 'asc' }],
+    });
+  }
+
+  // NEW: Delete images by variant ID
+  async deleteByVariantId(variantId: string): Promise<void> {
+    await prisma.productImage.deleteMany({
+      where: { productVariantId: variantId },
     });
   }
 }

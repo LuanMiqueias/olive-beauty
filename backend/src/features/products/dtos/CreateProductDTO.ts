@@ -4,6 +4,10 @@ export const productVariantSchema = z.object({
   attributes: z.record(z.string(), z.string()),
   price: z.number().positive('Preço deve ser positivo'),
   stock: z.number().int().min(0, 'Estoque não pode ser negativo'),
+  images: z.array(z.object({
+    url: z.string().url('URL inválida'),
+    isCover: z.boolean().optional(),
+  })).optional(), // NEW: Optional images for this variant
 });
 
 export const createProductSchema = z.object({

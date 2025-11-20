@@ -49,6 +49,12 @@ export class ProductVariantRepository {
     });
   }
 
+  async deleteByProductId(productId: string): Promise<void> {
+    await prisma.productVariant.deleteMany({
+      where: { productId },
+    });
+  }
+
   async decrementStock(id: string, quantity: number): Promise<void> {
     await prisma.productVariant.update({
       where: { id },

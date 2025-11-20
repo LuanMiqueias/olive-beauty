@@ -10,11 +10,13 @@ import {
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { Label } from '@/shared/components/ui/label'
+import { ImageManager } from './ImageManager'
 
 export interface ProductVariant {
   attributes: Record<string, string>
   price: number
   stock: number
+  images?: Array<{ url: string; isCover: boolean }> // Images specific to this variant
 }
 
 interface VariantFormModalProps {
@@ -37,6 +39,7 @@ export function VariantFormModal({
   ])
   const [price, setPrice] = useState('')
   const [stock, setStock] = useState('')
+  const [images, setImages] = useState<Array<{ url: string; isCover: boolean }>>([])
   const [errors, setErrors] = useState<{
     attributes?: string
     price?: string
@@ -53,10 +56,12 @@ export function VariantFormModal({
       setAttributes(attrsArray.length > 0 ? attrsArray : [{ key: '', value: '' }])
       setPrice(variant.price.toString())
       setStock(variant.stock.toString())
+      setImages(variant.images || []) // Initialize images from variant
     } else {
       setAttributes([{ key: '', value: '' }])
       setPrice('')
       setStock('')
+      setImages([]) // Reset images for new variant
     }
     setErrors({})
   }, [variant, open])
@@ -104,6 +109,7 @@ export function VariantFormModal({
       attributes: validAttributes,
       price: parseFloat(price),
       stock: parseInt(stock),
+      images: images.length > 0 ? images : undefined, // Include images if any
     })
 
     onOpenChange(false)
@@ -124,6 +130,29 @@ export function VariantFormModal({
     if (errors.attributes) {
       setErrors({ ...errors, attributes: undefined })
     }
+  }
+
+  // Image management handlers
+  const handleAddImage = (url: string) => {
+    setImages([...images, { url, isCover: images.length === 0 }])
+  }
+
+  const handleRemoveImage = (index: number) => {
+    const newImages = images.filter((_, i) => i !== index)
+    // If we removed the cover, make the first one the cover
+    if (images[index].isCover && newImages.length > 0) {
+      newImages[0].isCover = true
+    }
+    setImages(newImages)
+  }
+
+  const handleSetCover = (index: number) => {
+    setImages(
+      images.map((img, i) => ({
+        ...img,
+        isCover: i === index,
+      }))
+    )
   }
 
   return (
@@ -253,6 +282,19 @@ export function VariantFormModal({
               {errors.stock && (
                 <p className="text-sm text-destructive">{errors.stock}</p>
               )}
+            </div>
+
+            {/* Images Section */}
+            <div className="border-t pt-4">
+              <ImageManager
+                images={images}
+                onAddImage={handleAddImage}
+                onRemoveImage={handleRemoveImage}
+                onSetCover={handleSetCover}
+              />
+              <p className="text-xs text-muted-foreground mt-2">
+                Adicione imagens específicas para esta variante (opcional)
+              </p>
             </div>
           </div>
           <DialogFooter className="flex-col sm:flex-row gap-2">

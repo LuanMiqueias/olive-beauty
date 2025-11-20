@@ -36,20 +36,33 @@ export class CreateProductUseCase {
     // Create variants if provided
     if (data.variants && data.variants.length > 0) {
       for (const variant of data.variants) {
-        await this.productVariantRepository.create({
+        const createdVariant = await this.productVariantRepository.create({
           productId: product.id,
           attributes: JSON.stringify(variant.attributes),
           price: variant.price,
           stock: variant.stock,
         });
+
+        // Create variant-specific images if provided
+        if (variant.images && variant.images.length > 0) {
+          for (let i = 0; i < variant.images.length; i++) {
+            await this.productImageRepository.create({
+              productId: product.id,
+              productVariantId: createdVariant.id, // Associate with variant
+              url: variant.images[i].url,
+              isCover: variant.images[i].isCover ?? (i === 0), // First image is cover if not specified
+            });
+          }
+        }
       }
     }
 
-    // Create images if provided
+    // Create general product images if provided (not associated with any variant)
     if (data.images && data.images.length > 0) {
       for (let i = 0; i < data.images.length; i++) {
         await this.productImageRepository.create({
           productId: product.id,
+          productVariantId: undefined, // General product image
           url: data.images[i],
           isCover: i === 0, // First image is cover
         });
